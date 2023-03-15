@@ -432,7 +432,7 @@ regret_prop_scapa <- regret_prop_lin <- rep(NA, n_reps)
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
   data <- contextual_zib_linear_generator(time_horizon, K, m, 15, 0, 5, overlap = FALSE,
-                                          training = training_size, burst_prob = 0.2, 
+                                          training = training_size, burst_prob = 0.05, 
                                           delta_feature = 1,
                                           delta_coeff = 3)
   model_mat <- initial_model_linear(data$training_features, data$training_rewards)
@@ -447,7 +447,7 @@ for(i in 1:n_reps){
   
   
   scapa_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
-                                           lambda, alpha, 0.2, 30)
+                                           lambda, alpha, 0.01, 30)
   
   lin_run <- pslinucb(ps_data_features, ps_data_rewards, window_size = 100, alpha = 24,
                       threshold = 1)
