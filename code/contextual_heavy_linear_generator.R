@@ -74,8 +74,8 @@ contextual_heavy_linear_generator <- function(time_horizon, K, m, n_cont, n_disc
   #we use smaller values for the coeffs to give greater prob that change segments are "better"
   
   feature_mat <- r_features(time_horizon, n_cont, n_binary, n_discrete, delta_feature)
-  
-  coeff_mat <- runif((K * total_features), 1, 2) %>%
+  #this coeff mat will be overwritten if there are changes
+  coeff_mat <- runif((K * total_features), 0, delta_coeff) %>%
     matrix(nrow = total_features, ncol = K)
   
   reward_mat <- feature_mat %*% coeff_mat   #creates rewards from features and models

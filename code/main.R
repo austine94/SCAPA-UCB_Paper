@@ -186,7 +186,7 @@ for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
   data <- contextual_poisson_glm_generator(time_horizon, K, m, 1, 0, 0, overlap = FALSE,
                                            training = training_size, delta_coeff = 1,
-                                           delta_feature = 1)
+                                           delta_feature = 3)
   model_mat <- initial_model_poisson_glm(data$training_features, data$training_rewards)
   scapa_train_reward <- training_cost(data$training_rewards, train_steps) 
   
@@ -432,7 +432,7 @@ regret_prop_scapa <- regret_prop_lin <- rep(NA, n_reps)
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
   data <- contextual_zib_linear_generator(time_horizon, K, m, 15, 0, 5, overlap = FALSE,
-                                          training = training_size, burst_prob = 0.05, 
+                                          training = training_size, burst_prob = 0.01, 
                                           delta_feature = 1,
                                           delta_coeff = 3)
   model_mat <- initial_model_linear(data$training_features, data$training_rewards)
