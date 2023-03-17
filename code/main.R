@@ -33,6 +33,17 @@ source("./code/scapa_ucb_contextual_poisson_glm.R")
 source("./code/scapa_ucb_contextual_polynomial.R")
 source("./code/training_cost.R")
 
+theme_idris <- function() {
+  theme(
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    panel.background = element_blank(),
+    axis.line = element_line(colour = "grey20"),
+    panel.border =  element_rect(fill = NA,
+                                 colour = "grey20"),
+  )
+}
+
 
 ####################
 #S4.1 Sims
@@ -586,14 +597,14 @@ ggsave("results/m_increase_paper.png", g_m)
 ##################
 
 time_horizon <- 1000
-K <- seq(2, 30, by = 2)          #number of arms
+K <- seq(2, 20, by = 2)          #number of arms
 m <- 20           #number of changes
 alpha <- 0.001
 train_steps <- 30  #number of obs to fit each arm model for scapa ucb
 
 n_reps <- 100
 
-set.seed(200)
+set.seed(100)
 
 pslinucb_regret_K <- scapa_ucb_regret_K <- rep(NA, length(K))
 
@@ -624,15 +635,16 @@ for(k in 1:length(K)){
     lin_run <- pslinucb(ps_data_features, ps_data_rewards, window_size = 100, alpha = 24,
                         threshold = 1)
     
-    lin_sum <- sum(lin_run$rewards_received[(training_size + 1): length(lin_run$rewards_received)])
+    lin_sum <- sum(lin_run$rewards_received)
     
     #add to total regret
     
+    oracle_train <- apply(data$training_rewards, 1, max) %>% sum()
     oracle_reward <- apply(data$reward_mat, 1, max) %>% sum()
     
-    scapa_regret_current <- scapa_regret_current + (oracle_reward - scapa_run$cumulative_reward)
-    pslinucb_regret_current <- pslinucb_regret_current +
-      (oracle_reward - lin_sum)
+    scapa_regret_current <- scapa_regret_current + (oracle_reward - scapa_run$cumulative_reward) +
+                            scapa_train_reward$train_regret
+    pslinucb_regret_current <- pslinucb_regret_current + oracle_train +(oracle_reward - lin_sum)
     
     print(c(k, i))
   }
@@ -656,7 +668,7 @@ ggsave("results/K_Increase_paper.png", g_k)
 
 time_horizon <- 1000
 K <- 10        #number of arms
-m <- 10           #number of changes
+m <- 20           #number of changes
 alpha <- 0.001
 train_steps <- 30  #number of obs to fit each arm model for scapa ucb
 training_size <- K*train_steps  #number of training points to generate
