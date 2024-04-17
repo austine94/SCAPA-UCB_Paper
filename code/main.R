@@ -1,5 +1,5 @@
 library(tidyverse)
-library(anomaly)
+library(ScapaAnomaly)
 library(kableExtra)
 
 #########################

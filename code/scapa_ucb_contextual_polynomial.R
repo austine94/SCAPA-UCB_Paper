@@ -12,7 +12,7 @@ scapa_ucb_contextual_polynomial <- function(input, rewards, model_mat, lambda, a
   #n_retrain is the number of steps to take when retraining
   
   require(tidyverse)
-  require(anomaly)
+  require(ScapaAnomaly)
   
   if(!is.numeric(input)){
     stop("input should be a vector of numerics for the polynomial domain")

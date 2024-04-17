@@ -12,7 +12,7 @@ scapa_ucb_contextual_poisson_glm <- function(features, rewards, model_mat, lambd
   #n_retrain is the number of steps to take when retraining
   
   require(tidyverse)
-  require(anomaly)
+  require(ScapaAnomaly)
   
   if(!is.numeric(features) | !is.matrix(features)){
     stop("features should be a matrix of numeric features")
