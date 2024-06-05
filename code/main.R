@@ -58,6 +58,10 @@ training_size <- K*train_steps  #number of training points to generate
 alpha <- 0.001
 lambda <- 3*log(1000)
 
+ada_L <- time_horizon
+ada_variation <- 120 
+ada_delta <- 0.05
+
 n_reps <- 100
 
 set.seed(100)
