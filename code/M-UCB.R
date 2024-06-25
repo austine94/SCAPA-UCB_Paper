@@ -1,3 +1,15 @@
+ucb_mosum <- function(reward_vec, w, b){
+  right_window <- sum(reward_vec[(w/2 + 1):w])
+  left_window <- sum(reward_vec[1:(w/2)])
+  test_stat <- abs(right_window - left_window)
+  if(test_stat > b){
+    return(TRUE)
+  }else{
+    return(FALSE)
+  }
+}
+
+
 m_ucb <- function(rewards, w, b, gamma){
   
   require(tidyverse)

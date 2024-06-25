@@ -6,8 +6,10 @@ library(kableExtra)
 #import functions for sims
 ##########################
 
+source("./code/ada_greedy.R")
 source("./code/contextual_gamma_glm_generator.R")
 source("./code/contextual_gaussian_linear_generator.R")
+source("./code/contextual_gaussian_linear_ar1_generator.R")
 source("./code/contextual_heavy_linear_generator.R")
 source("./code/contextual_gamma_glm_generator.R")
 source("./code/contextual_logistic_glm_generator.R")
@@ -20,6 +22,7 @@ source("./code/initial_model_linear.R")
 source("./code/initial_model_multinomial_logistic.R")
 source("./code/initial_model_poisson_glm.R")
 source("./code/initial_model_polynomial.R")
+source("./code/M-UCB.R")
 source("./code/poly_eval.R")
 source("./code/PSLinUCB.R")
 source("./code/PSLinUCB_gamma_glm.R")

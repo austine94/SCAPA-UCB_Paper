@@ -11,6 +11,9 @@ scapa_ucb_contextual_polynomial <- function(input, rewards, model_mat, lambda, a
   #gamma is a value between 0 and 1 for the proportion of uniform samples to take
   #n_retrain is the number of steps to take when retraining
   
+  #This code assumes that the order of the polynomial stays fixed for all time -
+  #the value of this order is extracted from the model_mat input.
+  
   require(tidyverse)
   require(ScapaAnomaly)
   
