@@ -11,10 +11,10 @@ training_size <- K*train_steps  #number of training points to generate
 alpha <- 0.001
 lambda <- 3*log(1000)
 
-n_reps <- 100
+n_reps <- 1
 anomaly_prob <- 0.01
 
-set.seed(100)
+set.seed(1000)
 
 ####################
 
@@ -22,8 +22,8 @@ set.seed(100)
 
 ###################
 
-scapa_no_test_regret_mat <- scapa_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
-regret_prop_scapa <- regret_prop_scapa_no_test <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
+scapa_no_change_regret_mat <- scapa_no_anomaly_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
+regret_prop_scapa_no_anomaly <- regret_prop_scapa_no_change <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
 
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
@@ -40,10 +40,10 @@ for(i in 1:n_reps){
   #perform bandit algos
   
   
-  scapa_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_anomaly_run <- scapa_ucb_contextual_linear_no_anomaly(data$feature_mat, data$reward_mat, model_mat,
                                            lambda, alpha, 0.01, 30)
   
-  scapa_no_test_run <-scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_change_run <-scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
                                                   1e6, alpha, 0.01, 30)
   
   scapa_no_penalty_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
@@ -54,26 +54,26 @@ for(i in 1:n_reps){
   
   #calculate cumulative rewards and then the regret
   oracle_cumsum <- apply(data$reward_mat, 1, max) %>% cumsum
-  scapa_cumsum <- cumsum(scapa_run$rewards_received)
-  scapa_no_test_cumsum <- cumsum(scapa_no_test_run$rewards_received)
+  scapa_no_anomaly_cumsum <- cumsum(scapa_no_anomaly_run$rewards_received)
+  scapa_no_change_cumsum <- cumsum(scapa_no_change_run$rewards_received)
   scapa_no_penalty_cumsum <- cumsum(scapa_no_penalty_run$rewards_received)
   scapa_no_gamma_cumsum <- cumsum(scapa_no_gamma_run$rewards_received)
   
-  #note we count regret from when the test period starts; we allow for scapa_no_test to train 
+  #note we count regret from when the test period starts; we allow for scapa_no_change to train 
   #on the same amount of data as SCAPA-UCB before counting regret
   
-  scapa_regret <- oracle_cumsum - scapa_cumsum
-  scapa_no_test_regret <- oracle_cumsum - scapa_no_test_cumsum
+  scapa_no_anomaly_regret <- oracle_cumsum - scapa_no_anomaly_cumsum
+  scapa_no_change_regret <- oracle_cumsum - scapa_no_change_cumsum
   scapa_no_penalty_regret <- oracle_cumsum - scapa_no_penalty_cumsum
   scapa_no_gamma_regret <- oracle_cumsum - scapa_no_gamma_cumsum
   
-  scapa_regret_mat[,i] <- scapa_regret
-  scapa_no_test_regret_mat[,i] <- scapa_no_test_regret
+  scapa_no_anomaly_regret_mat[,i] <- scapa_no_anomaly_regret
+  scapa_no_change_regret_mat[,i] <- scapa_no_change_regret
   scapa_no_penalty_regret_mat[,i] <- scapa_no_penalty_regret
   scapa_no_gamma_regret_mat[,i] <- scapa_no_gamma_regret
   
-  regret_prop_scapa[i] <- scapa_regret[time_horizon] / oracle_cumsum[time_horizon]
-  regret_prop_scapa_no_test[i] <- scapa_no_test_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_anomaly[i] <- scapa_no_anomaly_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_change[i] <- scapa_no_change_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_penalty[i] <- scapa_no_penalty_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_gamma[i] <- scapa_no_gamma_regret[time_horizon] / oracle_cumsum[time_horizon]
   
@@ -81,13 +81,13 @@ for(i in 1:n_reps){
   
 }
 
-scapa_cum_regret <- apply(scapa_regret_mat, 1, mean, na.rm = TRUE)
-scapa_no_test_cum_regret <- apply(scapa_no_test_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_anomaly_cum_regret <- apply(scapa_no_anomaly_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_change_cum_regret <- apply(scapa_no_change_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_penalty_cum_regret <- apply(scapa_no_penalty_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_gamma_cum_regret <- apply(scapa_no_gamma_regret_mat, 1, mean, na.rm = TRUE)
 
-scapa_mean_regret_one <- mean(regret_prop_scapa, na.rm = TRUE)
-scapa_no_test_mean_regret_one <- mean(regret_prop_scapa_no_test, na.rm = TRUE)
+scapa_no_anomaly_mean_regret_one <- mean(regret_prop_scapa_no_anomaly, na.rm = TRUE)
+scapa_no_change_mean_regret_one <- mean(regret_prop_scapa_no_change, na.rm = TRUE)
 scapa_no_penalty_mean_regret_one <- mean(regret_prop_scapa_no_penalty, na.rm = TRUE)
 scapa_no_gamma_mean_regret_one <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE)
 
@@ -95,10 +95,10 @@ scapa_no_gamma_mean_regret_one <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE)
 #Heavy Tailed Noise - Two
 ###############
 
-set.seed(200)
+set.seed(2000)
 
-scapa_no_test_regret_mat <- scapa_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
-regret_prop_scapa <- regret_prop_scapa_no_test <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
+scapa_no_change_regret_mat <- scapa_no_anomaly_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
+regret_prop_scapa_no_anomaly <- regret_prop_scapa_no_change <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
 
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
@@ -115,10 +115,10 @@ for(i in 1:n_reps){
   #perform bandit algos
   
   
-  scapa_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_anomaly_run <- scapa_ucb_contextual_linear_no_anomaly(data$feature_mat, data$reward_mat, model_mat,
                                            lambda, alpha, 0.01, 30)
   
-  scapa_no_test_run <-scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_change_run <-scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
                                                   1e6, alpha, 0.01, 30)
   
   scapa_no_penalty_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
@@ -129,26 +129,26 @@ for(i in 1:n_reps){
   
   #calculate cumulative rewards and then the regret
   oracle_cumsum <- apply(data$reward_mat, 1, max) %>% cumsum
-  scapa_cumsum <- cumsum(scapa_run$rewards_received)
-  scapa_no_test_cumsum <- cumsum(scapa_no_test_run$rewards_received)
+  scapa_no_anomaly_cumsum <- cumsum(scapa_no_anomaly_run$rewards_received)
+  scapa_no_change_cumsum <- cumsum(scapa_no_change_run$rewards_received)
   scapa_no_penalty_cumsum <- cumsum(scapa_no_penalty_run$rewards_received)
   scapa_no_gamma_cumsum <- cumsum(scapa_no_gamma_run$rewards_received)
   
-  #note we count regret from when the test period starts; we allow for scapa_no_test to train 
+  #note we count regret from when the test period starts; we allow for scapa_no_change to train 
   #on the same amount of data as SCAPA-UCB before counting regret
   
-  scapa_regret <- oracle_cumsum - scapa_cumsum
-  scapa_no_test_regret <- oracle_cumsum - scapa_no_test_cumsum
+  scapa_no_anomaly_regret <- oracle_cumsum - scapa_no_anomaly_cumsum
+  scapa_no_change_regret <- oracle_cumsum - scapa_no_change_cumsum
   scapa_no_penalty_regret <- oracle_cumsum - scapa_no_penalty_cumsum
   scapa_no_gamma_regret <- oracle_cumsum - scapa_no_gamma_cumsum
   
-  scapa_regret_mat[,i] <- scapa_regret
-  scapa_no_test_regret_mat[,i] <- scapa_no_test_regret
+  scapa_no_anomaly_regret_mat[,i] <- scapa_no_anomaly_regret
+  scapa_no_change_regret_mat[,i] <- scapa_no_change_regret
   scapa_no_penalty_regret_mat[,i] <- scapa_no_penalty_regret
   scapa_no_gamma_regret_mat[,i] <- scapa_no_gamma_regret
   
-  regret_prop_scapa[i] <- scapa_regret[time_horizon] / oracle_cumsum[time_horizon]
-  regret_prop_scapa_no_test[i] <- scapa_no_test_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_anomaly[i] <- scapa_no_anomaly_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_change[i] <- scapa_no_change_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_penalty[i] <- scapa_no_penalty_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_gamma[i] <- scapa_no_gamma_regret[time_horizon] / oracle_cumsum[time_horizon]
   
@@ -156,13 +156,13 @@ for(i in 1:n_reps){
   
 }
 
-scapa_cum_regret <- apply(scapa_regret_mat, 1, mean, na.rm = TRUE)
-scapa_no_test_cum_regret <- apply(scapa_no_test_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_anomaly_cum_regret <- apply(scapa_no_anomaly_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_change_cum_regret <- apply(scapa_no_change_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_penalty_cum_regret <- apply(scapa_no_penalty_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_gamma_cum_regret <- apply(scapa_no_gamma_regret_mat, 1, mean, na.rm = TRUE)
 
-scapa_mean_regret_two <- mean(regret_prop_scapa, na.rm = TRUE)
-scapa_no_test_mean_regret_two <- mean(regret_prop_scapa_no_test, na.rm = TRUE)
+scapa_no_anomaly_mean_regret_two <- mean(regret_prop_scapa_no_anomaly, na.rm = TRUE)
+scapa_no_change_mean_regret_two <- mean(regret_prop_scapa_no_change, na.rm = TRUE)
 scapa_no_penalty_mean_regret_two <- mean(regret_prop_scapa_no_penalty, na.rm = TRUE)
 scapa_no_gamma_mean_regret_two <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE)
 
@@ -172,10 +172,10 @@ scapa_no_gamma_mean_regret_two <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE)
 
 ###################
 
-set.seed(300)
+set.seed(3000)
 
-scapa_no_test_regret_mat <- scapa_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
-regret_prop_scapa <- regret_prop_scapa_no_test <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
+scapa_no_change_regret_mat <- scapa_no_anomaly_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
+regret_prop_scapa_no_anomaly <- regret_prop_scapa_no_change <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
 
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
@@ -187,44 +187,44 @@ for(i in 1:n_reps){
   
   #add point anomalies
   point_anomaly_indices <- rbinom((time_horizon*K), 1, anomaly_prob)
-  data$reward_mat[which(point_anomaly_indices == 1)] <- 0  
+  data$reward_mat[which(point_anomaly_indices == 1)] <- 1 
   
   #perform bandit algos
   
-  scapa_run <- scapa_ucb_contextual_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_anomaly_run <- scapa_ucb_contextual_poisson_glm_no_anomaly(data$feature_mat, data$reward_mat, model_mat,
                                                 lambda, alpha, 0.01, 30)
   
-  scapa_no_test_run <-scapa_ucb_contextual_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_change_run <-scapa_ucb_contextual_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
                                                   1e6, alpha, 0.01, 30)
   
-  scapa_no_penalty_run <- scapa_ucb_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_penalty_run <- scapa_ucb_contextual_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
                                                       lambda, 1e-10, 0.01, 30)
   
-  scapa_no_gamma_run <- scapa_ucb_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_gamma_run <- scapa_ucb_contextual_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
                                                     lambda, alpha, 1e-10, 30)
   
   #calculate cumulative rewards and then the regret
   oracle_cumsum <- apply(data$reward_mat, 1, max) %>% cumsum
-  scapa_cumsum <- cumsum(scapa_run$rewards_received)
-  scapa_no_test_cumsum <- cumsum(scapa_no_test_run$rewards_received)
+  scapa_no_anomaly_cumsum <- cumsum(scapa_no_anomaly_run$rewards_received)
+  scapa_no_change_cumsum <- cumsum(scapa_no_change_run$rewards_received)
   scapa_no_penalty_cumsum <- cumsum(scapa_no_penalty_run$rewards_received)
   scapa_no_gamma_cumsum <- cumsum(scapa_no_gamma_run$rewards_received)
   
-  #note we count regret from when the test period starts; we allow for scapa_no_test to train 
+  #note we count regret from when the test period starts; we allow for scapa_no_change to train 
   #on the same amount of data as SCAPA-UCB before counting regret
   
-  scapa_regret <- oracle_cumsum - scapa_cumsum
-  scapa_no_test_regret <- oracle_cumsum - scapa_no_test_cumsum
+  scapa_no_anomaly_regret <- oracle_cumsum - scapa_no_anomaly_cumsum
+  scapa_no_change_regret <- oracle_cumsum - scapa_no_change_cumsum
   scapa_no_penalty_regret <- oracle_cumsum - scapa_no_penalty_cumsum
   scapa_no_gamma_regret <- oracle_cumsum - scapa_no_gamma_cumsum
   
-  scapa_regret_mat[,i] <- scapa_regret
-  scapa_no_test_regret_mat[,i] <- scapa_no_test_regret
+  scapa_no_anomaly_regret_mat[,i] <- scapa_no_anomaly_regret
+  scapa_no_change_regret_mat[,i] <- scapa_no_change_regret
   scapa_no_penalty_regret_mat[,i] <- scapa_no_penalty_regret
   scapa_no_gamma_regret_mat[,i] <- scapa_no_gamma_regret
   
-  regret_prop_scapa[i] <- scapa_regret[time_horizon] / oracle_cumsum[time_horizon]
-  regret_prop_scapa_no_test[i] <- scapa_no_test_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_anomaly[i] <- scapa_no_anomaly_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_change[i] <- scapa_no_change_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_penalty[i] <- scapa_no_penalty_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_gamma[i] <- scapa_no_gamma_regret[time_horizon] / oracle_cumsum[time_horizon]
   
@@ -232,13 +232,13 @@ for(i in 1:n_reps){
   
 }
 
-scapa_cum_regret <- apply(scapa_regret_mat, 1, mean, na.rm = TRUE)
-scapa_no_test_cum_regret <- apply(scapa_no_test_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_anomaly_cum_regret <- apply(scapa_no_anomaly_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_change_cum_regret <- apply(scapa_no_change_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_penalty_cum_regret <- apply(scapa_no_penalty_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_gamma_cum_regret <- apply(scapa_no_gamma_regret_mat, 1, mean, na.rm = TRUE)
 
-scapa_mean_regret_three <- mean(regret_prop_scapa, na.rm = TRUE)
-scapa_no_test_mean_regret_three <- mean(regret_prop_scapa_no_test, na.rm = TRUE)
+scapa_no_anomaly_mean_regret_three <- mean(regret_prop_scapa_no_anomaly, na.rm = TRUE)
+scapa_no_change_mean_regret_three <- mean(regret_prop_scapa_no_change, na.rm = TRUE)
 scapa_no_penalty_mean_regret_three <- mean(regret_prop_scapa_no_penalty, na.rm = TRUE)
 scapa_no_gamma_mean_regret_three <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE)
 
@@ -248,10 +248,10 @@ scapa_no_gamma_mean_regret_three <- mean(regret_prop_scapa_no_gamma, na.rm = TRU
 
 ###################
 
-set.seed(400)
+set.seed(4000)
 
-scapa_no_test_regret_mat <- scapa_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
-regret_prop_scapa <- regret_prop_scapa_no_test <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
+scapa_no_change_regret_mat <- scapa_no_anomaly_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
+regret_prop_scapa_no_anomaly <- regret_prop_scapa_no_change <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
 
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
@@ -263,15 +263,15 @@ for(i in 1:n_reps){
   
   #add point anomalies
   point_anomaly_indices <- rbinom((time_horizon*K), 1, anomaly_prob)
-  data$reward_mat[which(point_anomaly_indices == 1)] <- 0  
+  data$reward_mat[which(point_anomaly_indices == 1)] <- 1 
   
   #perform bandit algos
   
   
-  scapa_run <- scapa_ucb_contextual_gamma_glm(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_anomaly_run <- scapa_ucb_contextual_gamma_glm_no_anomaly(data$feature_mat, data$reward_mat, model_mat,
                                            lambda, alpha, 0.01, 30)
   
-  scapa_no_test_run <-scapa_ucb_contextual_gamma_glm(data$feature_mat, data$reward_mat, model_mat,
+  scapa_no_change_run <-scapa_ucb_contextual_gamma_glm(data$feature_mat, data$reward_mat, model_mat,
                                                   1e6, alpha, 0.01, 30)
   
   scapa_no_penalty_run <- scapa_ucb_contextual_gamma_glm(data$feature_mat, data$reward_mat, model_mat,
@@ -282,26 +282,26 @@ for(i in 1:n_reps){
   
   #calculate cumulative rewards and then the regret
   oracle_cumsum <- apply(data$reward_mat, 1, max) %>% cumsum
-  scapa_cumsum <- cumsum(scapa_run$rewards_received)
-  scapa_no_test_cumsum <- cumsum(scapa_no_test_run$rewards_received)
+  scapa_no_anomaly_cumsum <- cumsum(scapa_no_anomaly_run$rewards_received)
+  scapa_no_change_cumsum <- cumsum(scapa_no_change_run$rewards_received)
   scapa_no_penalty_cumsum <- cumsum(scapa_no_penalty_run$rewards_received)
   scapa_no_gamma_cumsum <- cumsum(scapa_no_gamma_run$rewards_received)
   
-  #note we count regret from when the test period starts; we allow for scapa_no_test to train 
+  #note we count regret from when the test period starts; we allow for scapa_no_change to train 
   #on the same amount of data as SCAPA-UCB before counting regret
   
-  scapa_regret <- oracle_cumsum - scapa_cumsum
-  scapa_no_test_regret <- oracle_cumsum - scapa_no_test_cumsum
+  scapa_no_anomaly_regret <- oracle_cumsum - scapa_no_anomaly_cumsum
+  scapa_no_change_regret <- oracle_cumsum - scapa_no_change_cumsum
   scapa_no_penalty_regret <- oracle_cumsum - scapa_no_penalty_cumsum
   scapa_no_gamma_regret <- oracle_cumsum - scapa_no_gamma_cumsum
   
-  scapa_regret_mat[,i] <- scapa_regret
-  scapa_no_test_regret_mat[,i] <- scapa_no_test_regret
+  scapa_no_anomaly_regret_mat[,i] <- scapa_no_anomaly_regret
+  scapa_no_change_regret_mat[,i] <- scapa_no_change_regret
   scapa_no_penalty_regret_mat[,i] <- scapa_no_penalty_regret
   scapa_no_gamma_regret_mat[,i] <- scapa_no_gamma_regret
   
-  regret_prop_scapa[i] <- scapa_regret[time_horizon] / oracle_cumsum[time_horizon]
-  regret_prop_scapa_no_test[i] <- scapa_no_test_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_anomaly[i] <- scapa_no_anomaly_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_change[i] <- scapa_no_change_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_penalty[i] <- scapa_no_penalty_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_gamma[i] <- scapa_no_gamma_regret[time_horizon] / oracle_cumsum[time_horizon]
   
@@ -309,13 +309,13 @@ for(i in 1:n_reps){
   
 }
 
-scapa_cum_regret <- apply(scapa_regret_mat, 1, mean, na.rm = TRUE)
-scapa_no_test_cum_regret <- apply(scapa_no_test_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_anomaly_cum_regret <- apply(scapa_no_anomaly_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_change_cum_regret <- apply(scapa_no_change_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_penalty_cum_regret <- apply(scapa_no_penalty_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_gamma_cum_regret <- apply(scapa_no_gamma_regret_mat, 1, mean, na.rm = TRUE)
 
-scapa_mean_regret_four <- mean(regret_prop_scapa, na.rm = TRUE)
-scapa_no_test_mean_regret_four <- mean(regret_prop_scapa_no_test, na.rm = TRUE)
+scapa_no_anomaly_mean_regret_four <- mean(regret_prop_scapa_no_anomaly, na.rm = TRUE)
+scapa_no_change_mean_regret_four <- mean(regret_prop_scapa_no_change, na.rm = TRUE)
 scapa_no_penalty_mean_regret_four <- mean(regret_prop_scapa_no_penalty, na.rm = TRUE)
 scapa_no_gamma_mean_regret_four <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE)
 
@@ -325,10 +325,10 @@ scapa_no_gamma_mean_regret_four <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE
 
 ###################
 
-set.seed(500)
+set.seed(5000)
 
-scapa_no_test_regret_mat <- scapa_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
-regret_prop_scapa <- regret_prop_scapa_no_test <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
+scapa_no_change_regret_mat <- scapa_no_anomaly_regret_mat <- scapa_no_penalty_regret_mat <- scapa_no_gamma_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
+regret_prop_scapa <- regret_prop_scapa_no_change <- regret_prop_scapa_no_penalty <- regret_prop_scapa_no_gamma <- rep(NA, n_reps)
 
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
@@ -347,40 +347,40 @@ for(i in 1:n_reps){
   #perform bandit algos
   
   
-  scapa_run <- scapa_ucb_contextual_linear(data$input_mat, data$reward_mat, model_mat,
+  scapa_no_anomaly_run <- scapa_ucb_contextual_polynomial_no_anomaly(data$input_mat, data$reward_mat, model_mat,
                                            lambda, alpha, 0.01, 30)
   
-  scapa_no_test_run <-scapa_ucb_contextual_linear(data$input_mat, data$reward_mat, model_mat,
+  scapa_no_change_run <-scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat,
                                                   1e6, alpha, 0.01, 30)
   
-  scapa_no_penalty_run <- scapa_ucb_contextual_linear(data$input_mat, data$reward_mat, model_mat,
+  scapa_no_penalty_run <- scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat,
                                                       lambda, 1e-10, 0.01, 30)
   
-  scapa_no_gamma_run <- scapa_ucb_contextual_linear(data$input_mat, data$reward_mat, model_mat,
+  scapa_no_gamma_run <- scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat,
                                                     lambda, alpha, 1e-10, 30)
   
   #calculate cumulative rewards and then the regret
   oracle_cumsum <- apply(data$reward_mat, 1, max) %>% cumsum
-  scapa_cumsum <- cumsum(scapa_run$rewards_received)
-  scapa_no_test_cumsum <- cumsum(scapa_no_test_run$rewards_received)
+  scapa_no_anomaly_cumsum <- cumsum(scapa_no_anomaly_run$rewards_received)
+  scapa_no_change_cumsum <- cumsum(scapa_no_change_run$rewards_received)
   scapa_no_penalty_cumsum <- cumsum(scapa_no_penalty_run$rewards_received)
   scapa_no_gamma_cumsum <- cumsum(scapa_no_gamma_run$rewards_received)
   
-  #note we count regret from when the test period starts; we allow for scapa_no_test to train 
+  #note we count regret from when the test period starts; we allow for scapa_no_change to train 
   #on the same amount of data as SCAPA-UCB before counting regret
   
-  scapa_regret <- oracle_cumsum - scapa_cumsum
-  scapa_no_test_regret <- oracle_cumsum - scapa_no_test_cumsum
+  scapa_no_anomaly_regret <- oracle_cumsum - scapa_no_anomaly_cumsum
+  scapa_no_change_regret <- oracle_cumsum - scapa_no_change_cumsum
   scapa_no_penalty_regret <- oracle_cumsum - scapa_no_penalty_cumsum
   scapa_no_gamma_regret <- oracle_cumsum - scapa_no_gamma_cumsum
   
-  scapa_regret_mat[,i] <- scapa_regret
-  scapa_no_test_regret_mat[,i] <- scapa_no_test_regret
+  scapa_no_anomaly_regret_mat[,i] <- scapa_no_anomaly_regret
+  scapa_no_change_regret_mat[,i] <- scapa_no_change_regret
   scapa_no_penalty_regret_mat[,i] <- scapa_no_penalty_regret
   scapa_no_gamma_regret_mat[,i] <- scapa_no_gamma_regret
   
-  regret_prop_scapa[i] <- scapa_regret[time_horizon] / oracle_cumsum[time_horizon]
-  regret_prop_scapa_no_test[i] <- scapa_no_test_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_anomaly[i] <- scapa_no_anomaly_regret[time_horizon] / oracle_cumsum[time_horizon]
+  regret_prop_scapa_no_change[i] <- scapa_no_change_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_penalty[i] <- scapa_no_penalty_regret[time_horizon] / oracle_cumsum[time_horizon]
   regret_prop_scapa_no_gamma[i] <- scapa_no_gamma_regret[time_horizon] / oracle_cumsum[time_horizon]
   
@@ -388,13 +388,13 @@ for(i in 1:n_reps){
   
 }
 
-scapa_cum_regret <- apply(scapa_regret_mat, 1, mean, na.rm = TRUE)
-scapa_no_test_cum_regret <- apply(scapa_no_test_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_anomaly_cum_regret <- apply(scapa_no_anomaly_regret_mat, 1, mean, na.rm = TRUE)
+scapa_no_change_cum_regret <- apply(scapa_no_change_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_penalty_cum_regret <- apply(scapa_no_penalty_regret_mat, 1, mean, na.rm = TRUE)
 scapa_no_gamma_cum_regret <- apply(scapa_no_gamma_regret_mat, 1, mean, na.rm = TRUE)
 
-scapa_mean_regret_five <- mean(regret_prop_scapa, na.rm = TRUE)
-scapa_no_test_mean_regret_five <- mean(regret_prop_scapa_no_test, na.rm = TRUE)
+scapa_no_anomaly_mean_regret_five <- mean(regret_prop_scapa_no_anomaly, na.rm = TRUE)
+scapa_no_change_mean_regret_five <- mean(regret_prop_scapa_no_change, na.rm = TRUE)
 scapa_no_penalty_mean_regret_five <- mean(regret_prop_scapa_no_penalty, na.rm = TRUE)
 scapa_no_gamma_mean_regret_five <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE)
 
@@ -402,16 +402,16 @@ scapa_no_gamma_mean_regret_five <- mean(regret_prop_scapa_no_gamma, na.rm = TRUE
 ############
 #Table
 ############
-scapa_ucb_results <- c(scapa_mean_regret_one, 
-                       scapa_mean_regret_two, 
-                       scapa_mean_regret_three, 
-                       scapa_mean_regret_four, 
-                       scapa_mean_regret_five)
-psscapa_no_test_results <- c(scapa_no_test_mean_regret_one, 
-                   scapa_no_test_mean_regret_two, 
-                   scapa_no_test_mean_regret_three, 
-                   scapa_no_test_mean_regret_four, 
-                   scapa_no_test_mean_regret_five)
+scapa_no_anomaly_results <- c(scapa_no_anomaly_mean_regret_one, 
+                       scapa_no_anomaly_mean_regret_two, 
+                       scapa_no_anomaly_mean_regret_three, 
+                       scapa_no_anomaly_mean_regret_four, 
+                       scapa_no_anomaly_mean_regret_five)
+scapa_no_change_results <- c(scapa_no_change_mean_regret_one, 
+                   scapa_no_change_mean_regret_two, 
+                   scapa_no_change_mean_regret_three, 
+                   scapa_no_change_mean_regret_four, 
+                   scapa_no_change_mean_regret_five)
 scapa_no_penalty_results <- c(scapa_no_penalty_mean_regret_one, 
                  scapa_no_penalty_mean_regret_two, 
                  scapa_no_penalty_mean_regret_three, 
@@ -423,13 +423,13 @@ scapa_no_gamma_results <- c(scapa_no_gamma_mean_regret_one,
                    scapa_no_gamma_mean_regret_four, 
                    scapa_no_gamma_mean_regret_five)
 
-scapa_ucb_results_table <- round(scapa_ucb_results * 100, 0)
-scapa_no_test_results_table <- round(scapa_no_test_results * 100, 0)
+scapa_no_anomaly_results_table <- round(scapa_no_anomaly_results * 100, 0)
+scapa_no_change_results_table <- round(scapa_no_change_results * 100, 0)
 scapa_no_penalty_results_table <- round(scapa_no_penalty_results * 100, 0)
 scapa_no_gamma_results_table <- round(scapa_no_gamma_results * 100, 0)
 
-ablation_df <- data.frame(SCAPA_UCB = scapa_ucb_results_table,
-                                  scapa_no_test = scapa_no_test_results_table, 
+ablation_df <- data.frame(scapa_no_anomaly = scapa_no_anomaly_results_table,
+                                  scapa_no_change = scapa_no_change_results_table, 
                                   scapa_no_penaltyGreedy = scapa_no_penalty_results_table,
                                   scapa_no_gamma = scapa_no_gamma_results_table)
 

@@ -197,12 +197,11 @@ for(i in 1:n_reps){
   
   #perform bandit algos
   
+  scapa_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
+                                           lambda, alpha, 0.01, 30)
   
-  scapa_run <- scapa_ucb_contextual_poisson_glm(data$feature_mat, data$reward_mat, model_mat,
-                                                lambda, alpha, 0.01, 30)
-  
-  lin_run <- pslinucb_poisson(ps_data_features, ps_data_rewards, window_size = 100, alpha = 24,
-                              threshold = 1)
+  lin_run <- pslinucb(ps_data_features, ps_data_rewards, window_size = 100, alpha = 24,
+                      threshold = 1)
   
   ada_run <- ada_greedy(data$reward_mat, ada_L, ada_threshold, ada_variation, ada_delta)
   
@@ -273,11 +272,11 @@ for(i in 1:n_reps){
   
   #perform bandit algos
   
-  scapa_run <- scapa_ucb_contextual_gamma_glm(data$feature_mat, data$reward_mat, model_mat,
-                                              lambda, alpha, 0.01, 30)
+  scapa_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
+                                           lambda, alpha, 0.01, 30)
   
-  lin_run <- pslinucb_gamma(ps_data_features, ps_data_rewards, window_size = 100, alpha = 24,
-                            threshold = 1)
+  lin_run <- pslinucb(ps_data_features, ps_data_rewards, window_size = 100, alpha = 24,
+                      threshold = 1)
   
   ada_run <- ada_greedy(data$reward_mat, ada_L, ada_threshold, ada_variation, ada_delta)
   

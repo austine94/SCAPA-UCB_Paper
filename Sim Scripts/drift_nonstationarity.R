@@ -21,7 +21,7 @@ m_ucb_b <- 266
 
 n_reps <- 100
 
-set.seed(100)
+set.seed(1)
 
 ####################
 
@@ -38,7 +38,7 @@ for(i in 1:n_reps){
                                                training = training_size, delta_feature = 1,
                                                delta_coeff = 3)
   #add drift to rewards
-  drift_magnitude <- runif(K, 0.5, 5)
+  drift_magnitude <- runif(K, 0.5, 1)
   for(k in 1:K){
     data$reward_mat[,k] <- data$reward_mat[,k] + seq(0, drift_magnitude[k], length = time_horizon)
   }
@@ -107,7 +107,7 @@ m_ucb_mean_regret_one <- mean(regret_prop_m_ucb, na.rm = TRUE)
 #Gaussian Random Walk Drift - Two
 ###############
 
-set.seed(200)
+set.seed(2)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -188,7 +188,7 @@ m_ucb_mean_regret_two <- mean(regret_prop_m_ucb, na.rm = TRUE)
 
 ###################
 
-set.seed(300)
+set.seed(3)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -264,7 +264,7 @@ m_ucb_mean_regret_three <- mean(regret_prop_m_ucb, na.rm = TRUE)
 
 ###################
 
-set.seed(400)
+set.seed(4)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -279,7 +279,8 @@ for(i in 1:n_reps){
   #create data features and rewards that include training data to put all of it into pslinucb
   
   ps_data_rewards <- rbind(data$training_rewards, data$reward_mat)
-  ps_data_features <- rbind(data$training_features, data$feature_mat)
+  ps_data_features <- c(data$training_input, data$input_mat) %>% as.matrix(ncol = 1)
+  ps_data_features <- cbind(rep(1, nrow(ps_data_features)), ps_data_features)
   
   #perform bandit algos
   
@@ -336,11 +337,11 @@ m_ucb_mean_regret_four <- mean(regret_prop_m_ucb, na.rm = TRUE)
 
 ####################
 
-#Polynomial - Five
+#Polynomial Fixed Drift - Five
 
 ###################
 
-set.seed(500)
+set.seed(5)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -349,6 +350,12 @@ for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
   data <- contextual_polynomial_generator(time_horizon, K, m, 0, 2, 4, overlap = FALSE,
                                           training = training_size)
+  #add drift to rewards
+  drift_magnitude <- runif(K, 0.5, 5)
+  for(k in 1:K){
+    data$reward_mat[,k] <- data$reward_mat[,k] + seq(0, drift_magnitude[k], length = time_horizon)
+  }
+  
   model_mat <- initial_model_polynomial(data$training_input, data$training_rewards, 4)
   scapa_train_reward <- training_cost(data$training_rewards, train_steps)
   

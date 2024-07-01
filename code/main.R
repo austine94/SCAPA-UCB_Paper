@@ -34,6 +34,11 @@ source("./code/scapa_ucb_contextual_linear.R")
 source("./code/scapa_ucb_contextual_logistic.R")
 source("./code/scapa_ucb_contextual_poisson_glm.R")
 source("./code/scapa_ucb_contextual_polynomial.R")
+source("./code/SCAPA_Contextual.R")
+source("./code/scapa_ucb_contextual_gamma_glm_no_anomaly.R")
+source("./code/scapa_ucb_contextual_linear_no_anomaly.R")
+source("./code/scapa_ucb_contextual_poisson_glm_no_anomaly.R")
+source("./code/scapa_ucb_contextual_polynomial_no_anomaly.R")
 source("./code/training_cost.R")
 
 theme_idris <- function() {
