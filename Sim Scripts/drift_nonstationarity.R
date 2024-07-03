@@ -12,9 +12,9 @@ alpha <- 0.001
 lambda <- 3*log(1000)
 
 ada_L <- time_horizon
-ada_threshold <- 10
-ada_variation <- 120 
-ada_delta <- 0.05
+ada_threshold <- 3
+ada_variation <- 3
+ada_delta <- 0.01
 
 m_ucb_w <- 250 #set these using formula given in Cao(2019)
 m_ucb_b <- 266 
@@ -38,7 +38,7 @@ for(i in 1:n_reps){
                                                training = training_size, delta_feature = 1,
                                                delta_coeff = 3)
   #add drift to rewards
-  drift_magnitude <- runif(K, 0.5, 1)
+  drift_magnitude <- runif(K, 2, 4)
   for(k in 1:K){
     data$reward_mat[,k] <- data$reward_mat[,k] + seq(0, drift_magnitude[k], length = time_horizon)
   }
@@ -55,7 +55,7 @@ for(i in 1:n_reps){
   
   
   scapa_run <- scapa_ucb_contextual_linear(data$feature_mat, data$reward_mat, model_mat,
-                                           lambda, alpha, 0.01, 30)
+                                           lambda, alpha, 0.05, 30)
   
   lin_run <- pslinucb(ps_data_features, ps_data_rewards, window_size = 100, alpha = 24,
                       threshold = 1)
