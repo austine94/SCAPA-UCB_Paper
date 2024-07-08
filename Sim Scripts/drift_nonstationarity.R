@@ -11,10 +11,10 @@ training_size <- K*train_steps  #number of training points to generate
 alpha <- 0.001
 lambda <- 3*log(1000)
 
-ada_L <- time_horizon
-ada_threshold <- 3
-ada_variation <- 3
-ada_delta <- 0.01
+ada_L <- 1000000
+ada_threshold <- 1
+ada_variation <- 100000^(-1/3)
+ada_delta <- 0.1
 
 m_ucb_w <- 250 #set these using formula given in Cao(2019)
 m_ucb_b <- 266 

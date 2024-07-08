@@ -5,6 +5,7 @@ ucb_scapa_contextual_test <- function(reward_vec, beta, beta_tilde, transform = 
   #default is Tierney - this scales sequentially by sequentially estimated mean and sd
   
   #return(list(collective = FALSE, point = FALSE, anomaly_time = NA ))
+  #anomaly_time is for collective only - we sort the point out in the SCAPA-UCB main func
   
   scapa_run <- scapa.uv(reward_vec, beta, beta_tilde, transform = transform, min_seg_len = 5,
                         max_seg_len = 500)
@@ -20,7 +21,7 @@ ucb_scapa_contextual_test <- function(reward_vec, beta, beta_tilde, transform = 
   }else if( scapa_run@anomaly_types[length(reward_vec)] == 1){  #only point anomaly
     collective <- FALSE 
     point <- TRUE
-    anomaly_time <- NA
+    anomaly_time <- NA 
   }else{  #only interested in most recent point being a point anomaly
     collective <- point <- FALSE
     anomaly_time <- NA

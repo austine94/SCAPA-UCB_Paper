@@ -34,7 +34,7 @@ ada_greedy <- function(rewards, L, threshold, variation, delta){
   cumulative_reward <- 0
   
   #compute mu (for UCB round ) and beta (for nonstationarity detection)
-  mu <- min(1/K, (L^(-1/3) * sqrt(log(K/delta)/K)))
+  mu <- min(1/K, (L^(-1/3) * sqrt(log(K/delta))))
   beta <- 2 * sqrt(log(4*time_horizon^2*K/delta)/(mu*I)) + log(4*time_horizon^2*K/delta)/(mu*I)
   
   interval_starts <- 0  #vector to store T_i times - the interval starts
@@ -52,7 +52,7 @@ ada_greedy <- function(rewards, L, threshold, variation, delta){
     for(t in j_start:j_end){ 
       #create values for distribution and sample action from it
       p_vec <- rep(mu, K)
-      p_vec[oracle_action] <- p_vec[oracle_action] + (K-K*mu)
+      p_vec[oracle_action] <- p_vec[oracle_action] + (1-K*mu)
       action_dist <- p_vec / sum(p_vec) #create prob distribution to sample from
       actions[t] <- sample(1:K, 1, prob = action_dist) #choose action; most likely oracle action
       rewards_received[t] <- rewards[t,actions[t]]
