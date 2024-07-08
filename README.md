@@ -1,4 +1,4 @@
-# SCAPA-UCB_Paper
+# SCAPA-UCB Paper
 This is a repo containing all code needed to reproduce simulation studies in the SCAPA-UCB paper.
 
 The code for the different components of the algorithm can be found in the /code folder. Several implementations of SCAPA-UCB are provided here, matching the simulations performed in the paper.
