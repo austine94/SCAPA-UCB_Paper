@@ -131,7 +131,7 @@ scapa_ucb_contextual_polynomial_no_change <- function(input, rewards, model_mat,
       }
       
     }else{
-      A <- (i - most_recent_change) %% (floor(K / gamma))   #uniform sampling; gamma is the proportion that are exploration only
+      A <- (i - most_recent_change) %% (floor(sqrt(K / gamma)))  #uniform sampling; gamma is the proportion that are exploration only
       if( A > 0 & A <= K){  #exploration step
         action_to_take <- A
         actions[i] <- action_to_take  #store action taken

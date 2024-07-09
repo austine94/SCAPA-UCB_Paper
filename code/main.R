@@ -43,7 +43,6 @@ source("./code/scapa_ucb_contextual_poisson_glm_no_anomaly.R")
 source("./code/scapa_ucb_contextual_polynomial_no_anomaly.R")
 source("./code/scapa_ucb_contextual_polynomial_no_change.R")
 source("./code/scapa_ucb_contextual_polynomial_no_gamma.R")
-
 source("./code/training_cost.R")
 
 theme_idris <- function() {
