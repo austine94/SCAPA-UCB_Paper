@@ -147,7 +147,7 @@ scapa_ucb_contextual_linear_no_gamma <- function(features, rewards, model_mat, l
         rewards_received[i] <- rewards[i,action_to_take] #update rewards
         cumulative_reward <- cumulative_reward + rewards[i,action_to_take]
       
-      if(n_plays[action_to_take] >= 30){  #use change detection
+      if(n_plays[action_to_take] >= 10){  #use change detection
         reward_vec <- residual_mat[((tau[action_to_take] + 1) : i),action_to_take] %>%
           na.omit() %>% as.vector()
         change_test <- ucb_scapa_contextual_test(reward_vec, beta, beta_tilde,
