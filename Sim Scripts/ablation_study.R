@@ -12,7 +12,7 @@ alpha <- 0.001
 lambda <- 3*log(1000)
 
 n_reps <- 100
-anomaly_prob <- 0.01
+anomaly_prob <- 0.02
 
 set.seed(1000)
 
@@ -361,7 +361,7 @@ regret_prop_scapa <- regret_prop_scapa_no_change <- regret_prop_scapa_no_penalty
 
 for(i in 1:n_reps){
   #generate data and fit initial model for SCAPA
-  data <- contextual_polynomial_generator(time_horizon, K, m, 0, 2, 6, overlap = FALSE,
+  data <- contextual_polynomial_generator(time_horizon, K, m, 0, 2, 4,
                                           training = training_size)
   model_mat <- initial_model_polynomial(data$training_input, data$training_rewards, 4)
   scapa_train_reward <- training_cost(data$training_rewards, train_steps)
@@ -371,21 +371,15 @@ for(i in 1:n_reps){
   data$reward_mat[which(point_anomaly_indices == 1)] <- 0  
   
 
-  scapa_run <- scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat,
-                                                          lambda, alpha, 0.01, 30)
+  scapa_run <- scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat, lambda, alpha, 0.01, 30)
   
+  scapa_no_anomaly_run <- scapa_ucb_contextual_polynomial_no_anomaly(data$input_mat, data$reward_mat, model_mat, lambda, alpha, 0.01, 30)
   
-  scapa_no_anomaly_run <- scapa_ucb_contextual_polynomial_no_anomaly(data$input_mat, data$reward_mat, model_mat,
-                                           lambda, alpha, 0.01, 30)
+  scapa_no_change_run <-scapa_ucb_contextual_polynomial_no_change(data$input_mat, data$reward_mat, model_mat, lambda, alpha, 0.01, 30)
   
-  scapa_no_change_run <-scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat,
-                                                  lambda, alpha, 0.01, 30)
+  scapa_no_penalty_run <- scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat, lambda, 1e-10, 0.01, 30)
   
-  scapa_no_penalty_run <- scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat,
-                                                      lambda, 1e-10, 0.01, 30)
-  
-  scapa_no_gamma_run <- scapa_ucb_contextual_polynomial_no_gamma(data$input_mat, data$reward_mat, model_mat,
-                                                             lambda, alpha, 30)
+  scapa_no_gamma_run <- scapa_ucb_contextual_polynomial(data$input_mat, data$reward_mat, model_mat, lambda, alpha, 0.1, 30)
   
   #calculate cumulative rewards and then the regret
   oracle_cumsum <- apply(data$reward_mat, 1, max) %>% cumsum

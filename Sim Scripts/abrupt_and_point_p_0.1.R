@@ -9,21 +9,21 @@ train_steps <- 30  #number of obs to fit each arm model for scapa ucb
 training_size <- K*train_steps  #number of training points to generate
 
 alpha <- 0.001
-lambda <- 3*log(1000)
+lambda <- log(1000)
 
 
 ada_L <- 100000
 ada_threshold <- 100
 ada_variation <- 100000^(-1/3)
-ada_delta <- 0.1
+ada_delta <- 0.001
 
 m_ucb_w <- 250 #set these using formula given in Cao(2019)
 m_ucb_b <- 266 
 
 n_reps <- 100
-anomaly_prob <- 0.01
+anomaly_prob <- 0.1
 
-set.seed(100)
+set.seed(150)
 
 ####################
 
@@ -107,7 +107,7 @@ m_ucb_mean_regret_one <- mean(regret_prop_m_ucb, na.rm = TRUE)
 #Heavy Tailed Noise - Two
 ###############
 
-set.seed(300)
+set.seed(151)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -187,7 +187,7 @@ m_ucb_mean_regret_two <- mean(regret_prop_m_ucb, na.rm = TRUE)
 
 ###################
 
-set.seed(300)
+set.seed(152)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -267,7 +267,7 @@ m_ucb_mean_regret_three <- mean(regret_prop_m_ucb, na.rm = TRUE)
 
 ###################
 
-set.seed(400)
+set.seed(153)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -346,7 +346,7 @@ m_ucb_mean_regret_four <- mean(regret_prop_m_ucb, na.rm = TRUE)
 
 ###################
 
-set.seed(500)
+set.seed(154)
 
 pslinucb_regret_mat <- scapa_regret_mat <- ada_regret_mat <- m_ucb_regret_mat <- matrix(NA, nrow = time_horizon, ncol = n_reps)
 regret_prop_scapa <- regret_prop_lin <- regret_prop_ada <- regret_prop_m_ucb <- rep(NA, n_reps)
@@ -452,11 +452,11 @@ ada_results_table <- round(ada_results * 100, 0)
 m_ucb_results_table <- round(m_ucb_results * 100, 0)
 
 abrupt_and_point_df <- data.frame(SCAPA_UCB = scapa_ucb_results_table,
-                               PSLinUCB = pslin_results_table, 
-                               ADAGreedy = ada_results_table,
-                               M_UCB = m_ucb_results_table)
+                                  PSLinUCB = pslin_results_table, 
+                                  ADAGreedy = ada_results_table,
+                                  M_UCB = m_ucb_results_table)
 
 abrupt_and_point_table <- kable(abrupt_and_point_df, "html", 
-                             table.attr = "style='width:30%;'") %>%
+                                table.attr = "style='width:30%;'") %>%
   kable_styling(font_size = 20, bootstrap_options = "striped")
-save_kable(abrupt_and_point_table, file = "./results/p_0.01_Abrupt_And_Point_Results.png")
+save_kable(abrupt_and_point_table, file = "./results/p_0.1_Abrupt_And_Point_Results.png")
