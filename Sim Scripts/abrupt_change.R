@@ -431,7 +431,7 @@ m_ucb_results_table <- round(m_ucb_results * 100, 0)
 
 abrupt_change_df <- data.frame(SCAPA_UCB = scapa_ucb_results_table,
                                 PSLinUCB = pslin_results_table, 
-                               ADAGreedy = ada_results_table,
+                               ADA = ada_results_table,
                                M_UCB = m_ucb_results_table)
         
 abrupt_change_table <- kable(abrupt_change_df, "html", 

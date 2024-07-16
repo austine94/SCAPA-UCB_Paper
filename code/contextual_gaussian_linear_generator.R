@@ -2,7 +2,8 @@
 
 contextual_gaussian_linear_generator <- function(time_horizon, K, m, n_cont, n_discrete,
                                                  n_binary, delta_feature = 5, delta_coeff = 5,
-                                                 overlap = FALSE, training = 100){
+                                                 overlap = FALSE, training = 100,
+                                                 noise_var = 1){
   #function to generate random bandit scenarios with linear models
   #does not generate overlapping changes automatically
   
@@ -15,6 +16,7 @@ contextual_gaussian_linear_generator <- function(time_horizon, K, m, n_cont, n_d
   #delta_coeff is the max value of the coefficients
   #training generates a specific training set for the arms - if NA, no set is returned,
   #otherwise training specifies the size
+  #noise_var is the variance of the noise added to the rewards
   
   #we return the change locations (if any) for each arm
   #the feature matrix -- the first column is the intercept
@@ -64,6 +66,10 @@ contextual_gaussian_linear_generator <- function(time_horizon, K, m, n_cont, n_d
     }
   }else{
     training_features <- training_rewards <- NA
+  }
+  
+  if(!is.numeric(noise_var) | noise_var <= 0){
+    stop("noise_var must be a positive numeric")
   }
   
   total_features <- n_cont + n_discrete + n_binary + 1 #add 1 for intercept
@@ -142,7 +148,7 @@ contextual_gaussian_linear_generator <- function(time_horizon, K, m, n_cont, n_d
   }
   
   #finally, add noise
-  noise_mat <- rnorm( (time_horizon * K), 0, 1) %>% matrix(nrow = time_horizon, ncol = K)
+  noise_mat <- rnorm( (time_horizon * K), 0, sqrt(noise_var)) %>% matrix(nrow = time_horizon, ncol = K)
   reward_mat <- reward_mat + noise_mat
   
   return(list(change_locations = change_locations, feature_mat = feature_mat,

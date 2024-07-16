@@ -450,7 +450,7 @@ m_ucb_results_table <- round(m_ucb_results * 100, 0)
 
 drift_change_df <- data.frame(SCAPA_UCB = scapa_ucb_results_table,
                                PSLinUCB = pslin_results_table, 
-                               ADAGreedy = ada_results_table,
+                               ADA = ada_results_table,
                                M_UCB = m_ucb_results_table)
 
 drift_change_table <- kable(drift_change_df, "html", 
