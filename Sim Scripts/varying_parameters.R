@@ -65,8 +65,8 @@ for(k in 1:length(m)){
 
 #plot result
 
-g_m <- ggplot() + geom_line(aes(x = m, y = scapa_ucb_regret_m), col = "blue") + 
-  geom_line(aes(x = m, y = pslinucb_regret_m), col = "black", lty = 2) +
+g_m <- ggplot() + geom_line(aes(x = m[1:14], y = scapa_ucb_regret_m[1:14]), col = "blue") + 
+  #geom_line(aes(x = m, y = pslinucb_regret_m), col = "black", lty = 2) +
   labs(x = "m", y = "Expedcted Total Regret") + theme_idris()
 ggsave("results/m_increase_paper.png", g_m)
 
@@ -134,7 +134,7 @@ for(k in 1:length(K)){
 
 #plot
 
-g_k <- ggplot() + geom_line(aes(x = K, y = pslinucb_regret_K), col = "black", lty = 2) +
+g_k <- ggplot() + 
   geom_line(aes(x = K, y = scapa_ucb_regret_K), col = "blue") +
   labs(x = "K", y = "Expected Total Regret") + theme_idris()
 ggsave("results/K_Increase_paper.png", g_k)
